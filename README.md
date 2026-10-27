@@ -1,7 +1,7 @@
 # Airline Procedure Intelligence (SkyOps Intelligence)
 
 [![Status: Baseline Approved](https://img.shields.io/badge/Status-Baseline%20Approved-success.svg)](#)
-[![Milestones: 3.1, 3.8, 3.9, 3.37](https://img.shields.io/badge/Milestones-3.1%20%7C%203.8%20%7C%203.9%20%7C%203.37-blue.svg)](#)
+[![Milestones: 3.1, 3.8, 3.9, 3.10, 3.37](https://img.shields.io/badge/Milestones-3.1%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.37-blue.svg)](#)
 [![Domain: Aviation Safety](https://img.shields.io/badge/Domain-Commercial%20Aviation%20Safety-red.svg)](#)
 
 AI-powered operational procedure assistant designed for airline ground staff, ramp agents, gate personnel, station dispatchers, and safety compliance auditors.
@@ -27,57 +27,99 @@ When an emergency safety bulletin or temporary revision modifies a standard proc
 
 ---
 
-## 2. Documentation & Prototype Suite
-
-| Document / Artifact | Purpose & Scope | Target Milestone |
-| :--- | :--- | :--- |
-| **[Clickable Prototype](prototype/index.html)** | Interactive, zero-dependency clickable prototype demonstrating active procedures, superseded warnings, no-evidence refusals, conflict resolution, and document ingestion. | **Milestone 3.9** |
-| **[UX Architecture & Wireframes](docs/UX_DESIGN.md)** | Human factors analysis for tarmac environments, ASCII wireframes for 6 core screens, primary user journey, and WCAG accessibility standards. | **Milestone 3.9** |
-| **[Product Requirements Document (PRD)](docs/PRD.md)** | Target personas, operational pain points, functional & non-functional requirements, safety constraints, acceptance criteria, and out-of-scope boundaries. | **Milestone 3.8** |
-| **[System Architecture & Initial RAG Design](docs/ARCHITECTURE.md)** | Subsystems, ingestion pipeline, hierarchical chunking, hybrid BM25 + dense search, re-ranking, generation guardrails, and data flow diagrams. | **Milestone 3.37** |
-| **[Version & Supersession Resolution Model](docs/SUPERSEDENCE_MODEL.md)** | Regulatory precedence hierarchy, Directed Acyclic Graph (DAG) specification, metadata schemas, query-time resolution algorithm, and zero-stale guarantee. | **Milestone 3.37** |
-| **[Safety Constraints & Operational Risk Analysis](docs/RISKS_AND_SAFETY.md)** | Hazard Identification & Risk Assessment (HIRA), Swiss Cheese Model, fail-closed protocols, human-in-the-loop (HITL) checkpoints, and SMS compliance. | **Milestone 3.8 / 3.37** |
-| **[30-Day Implementation Roadmap](docs/ROADMAP.md)** | 5-phase execution plan spanning Days 1–30, milestone mapping (3.1 to 3.99), evaluation benchmarks, and pilot readiness criteria. | **Milestone 3.1** |
-
----
-
-## 3. Primary User Journey (Ground Staff Experience)
-
-```
-[ Step 1: ASK ] ------------> [ Step 2: RETRIEVE ] --------> [ Step 3: VERIFY ] --------> [ Step 4: REVIEW ]
-Natural language query       Hybrid dense vector &           Supersession DAG &             Structured checklist,
-scoped by Station & Fleet    sparse BM25 passage search      precedence validation          mandatory verbs & citations
-```
-
----
-
-## 4. How to Launch the Prototype
-
-The interactive prototype requires no dependencies or build steps. Open directly in a browser:
-```powershell
-Start-Process "prototype\index.html"
-```
-Or view [prototype instructions](prototype/README.md).
-
----
-
-## 5. Repository Structure
+## 2. Workspace Structure & Technology Stack
 
 ```
 S63_airline-procedure-intelligence/
-├── README.md                          # Master overview, architecture summary & navigation
-├── .gitignore                         # Comprehensive Git ignore rules
+├── backend/                           # FastAPI Python Service (Milestone 3.10)
+│   ├── app/
+│   │   ├── main.py                    # App entrypoint, CORS & route mounting
+│   │   ├── core/config.py             # Pydantic Settings & safe env loading
+│   │   └── api/routes/health.py       # /health & /status diagnostic endpoints
+│   ├── tests/                         # Pytest unit tests (health, config)
+│   ├── pyproject.toml                 # Ruff, Pytest, packaging configuration
+│   ├── requirements.txt               # Locked runtime dependencies
+│   ├── requirements-dev.txt           # Development and testing dependencies
+│   └── .env.example                   # Backend environment template
+├── frontend/                          # Next.js 14 Progressive Web App (Milestone 3.10)
+│   ├── src/app/                       # App router (layout, landing page, health API)
+│   ├── package.json                   # Dependencies, linting, build scripts
+│   ├── tsconfig.json                  # TypeScript compiler options
+│   ├── next.config.mjs                # Next.js runtime configuration
+│   ├── .eslintrc.json                 # ESLint rules
+│   └── .env.example                   # Frontend environment template
 ├── prototype/                         # Interactive Clickable Prototype (Milestone 3.9)
 │   ├── index.html                     # Self-contained responsive HTML5/CSS3/JS prototype
 │   └── README.md                      # Prototype user guide & scenario walkthrough
-└── docs/
-    ├── UX_DESIGN.md                   # UX Architecture & Wireframe Specifications (Milestone 3.9)
-    ├── PRD.md                         # Product Requirements Document (Milestone 3.8)
-    ├── ARCHITECTURE.md                # Initial RAG Architecture & Ingestion Design (Milestone 3.37)
-    ├── SUPERSEDENCE_MODEL.md          # Versioning & Supersession Graph Engine (Milestone 3.37)
-    ├── RISKS_AND_SAFETY.md            # Safety Constraints & HIRA Risk Matrix (Milestones 3.8, 3.37)
-    └── ROADMAP.md                     # 30-Day Implementation Roadmap & Milestones (Milestone 3.1)
+├── docs/                              # Comprehensive Architectural Documentation
+│   ├── UX_DESIGN.md                   # UX Architecture & Wireframes (Milestone 3.9)
+│   ├── PRD.md                         # Product Requirements Document (Milestone 3.8)
+│   ├── ARCHITECTURE.md                # Initial RAG Architecture & Ingestion Design (Milestone 3.37)
+│   ├── SUPERSEDENCE_MODEL.md          # Versioning & Supersession Graph Engine (Milestone 3.37)
+│   ├── RISKS_AND_SAFETY.md            # Safety Constraints & HIRA Risk Matrix (Milestones 3.8, 3.37)
+│   └── ROADMAP.md                     # 30-Day Implementation Roadmap & Milestones (Milestone 3.1)
+├── .editorconfig                      # Universal code formatting rules
+├── .env.example                       # Unified root environment configuration
+├── .gitignore                         # Strict credential and artifact exclusions
+└── Makefile                           # Common local development commands
 ```
+
+---
+
+## 3. Local Setup & Quick Start (Milestone 3.10)
+
+### Backend (FastAPI) Setup
+```bash
+# 1. Navigate to backend directory
+cd backend
+
+# 2. Configure local environment (all variables have safe defaults)
+cp .env.example .env
+
+# 3. Install dependencies
+pip install -r requirements-dev.txt
+
+# 4. Run tests & linters
+pytest
+ruff check .
+
+# 5. Start the backend service
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### Frontend (Next.js) Setup
+```bash
+# 1. Navigate to frontend directory
+cd frontend
+
+# 2. Configure local environment
+cp .env.example .env.local
+
+# 3. Install dependencies
+npm install
+
+# 4. Start the frontend application
+npm run dev
+```
+
+---
+
+## 4. Health Check & Diagnostics
+
+| Endpoint | Method | Expected Output | Purpose |
+| :--- | :--- | :--- | :--- |
+| `http://localhost:8000/health` | `GET` | `{"status": "healthy", "service": "SkyOps Intelligence Backend", ...}` | Backend liveness probe |
+| `http://localhost:8000/status` | `GET` | `{"status": "operational", "subsystems": {...}}` | Subsystem diagnostic readiness |
+| `http://localhost:8000/api/v1/health` | `GET` | `{"status": "healthy", ...}` | Versioned API gateway health |
+| `http://localhost:8000/docs` | `GET` | Interactive Swagger OpenAPI UI | API documentation & testing |
+| `http://localhost:3000/api/health` | `GET` | `{"status": "healthy", "service": "skyops-frontend", ...}` | Frontend Next.js health route |
+
+---
+
+## 5. Security & Secret Management
+
+- **Zero Credentials in Git:** The `.gitignore` is strictly configured to ignore all `.env`, `.env.*.local`, `*.pem`, `*.key`, and credential files.
+- **Safe Fallbacks:** The `Settings` model in `backend/app/core/config.py` uses safe default values for all parameters, ensuring the service boots cleanly in CI/CD and containerized environments even before production secrets are injected.
 
 ---
 
@@ -86,4 +128,5 @@ S63_airline-procedure-intelligence/
 - **Milestone 3.1 (Project Kickoff & Setup):** Baseline repository established, clean branching workflow, project overview, and implementation plan.
 - **Milestone 3.8 (Product Requirements Document):** Full PRD covering personas, operational pain points, functional requirements, NFRs, safety constraints, and acceptance criteria.
 - **Milestone 3.9 (Mock UX & Clickable Prototype):** Wireframe specifications, primary user journey documentation, and interactive prototype covering active procedures, superseded warnings, no-evidence refusals, and conflicting sources.
+- **Milestone 3.10 (Development Environment & Workspace):** Modular Next.js and FastAPI workspace, dependency manifests, safe environment loading, `.env.example`, formatting/linting configs, and health-check instructions.
 - **Milestone 3.37 (Initial RAG Architecture):** Detailed architecture specifications covering ingestion, parsing, vector index, supersession model, hybrid retrieval, fail-closed generation, and risk mitigation.
