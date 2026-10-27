@@ -101,3 +101,4 @@ jobs:
             exit 1
           fi
           echo "Secret hygiene scan passed. No live .env or credential files detected in Git tree."
+

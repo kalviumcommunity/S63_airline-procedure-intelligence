@@ -96,3 +96,4 @@ When contributing to the RAG, ingestion, or supersession engines:
 1. **Zero-Stale Guarantee:** Ensure that no query path can return a chunk with `status != 'active'`.
 2. **Entailment Verification:** All generated procedures must be grounded by explicit citations containing Document ID, Version, Section, and Page.
 3. **Fail-Closed Design:** If confidence is below threshold ($\tau < 0.82$) or a conflict is detected between directives of equal rank, the system must fail closed and escalate to human dispatchers.
+

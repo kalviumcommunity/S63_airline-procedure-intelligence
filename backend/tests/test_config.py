@@ -13,7 +13,7 @@ def test_settings_load_with_safe_defaults():
     assert test_settings.BACKEND_PORT == 8000
     assert isinstance(test_settings.CORS_ORIGINS, list)
     assert len(test_settings.CORS_ORIGINS) > 0
-    assert test_settings.DEFAULT_LLM_MODEL == "claude-3-5-sonnet-20241022"
+    assert test_settings.DEFAULT_LLM_MODEL == "gpt-4o-mini"
     assert test_settings.DEFAULT_EMBEDDING_MODEL == "text-embedding-3-large"
     assert test_settings.LLM_TEMPERATURE == 0.0
 

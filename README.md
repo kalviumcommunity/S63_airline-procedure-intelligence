@@ -1,7 +1,7 @@
 # Airline Procedure Intelligence (SkyOps Intelligence)
 
 [![Status: Baseline Approved](https://img.shields.io/badge/Status-Baseline%20Approved-success.svg)](#)
-[![Milestones: 3.1, 3.8, 3.9, 3.10, 3.11, 3.37](https://img.shields.io/badge/Milestones-3.1%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.37-blue.svg)](#)
+[![Milestones: 3.1, 3.8, 3.9, 3.10, 3.11, 3.12, 3.37](https://img.shields.io/badge/Milestones-3.1%20%7C%203.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12%20%7C%203.37-blue.svg)](#)
 [![Domain: Aviation Safety](https://img.shields.io/badge/Domain-Commercial%20Aviation%20Safety-red.svg)](#)
 [![CI Quality Gates](https://github.com/kalviumcommunity/S63_airline-procedure-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/kalviumcommunity/S63_airline-procedure-intelligence/actions/workflows/ci.yml)
 
@@ -36,12 +36,19 @@ S63_airline-procedure-intelligence/
 │   ├── workflows/ci.yml               # Automated CI quality gates (lint, test, typecheck, secrets)
 │   ├── ISSUE_TEMPLATE/                # Bug reports, feature requests & safety discrepancy reports
 │   └── PULL_REQUEST_TEMPLATE.md       # PR checklist & mandatory human review gate
-├── backend/                           # FastAPI Python Service (Milestone 3.10)
+├── backend/                           # FastAPI Python Service (Milestones 3.10, 3.12)
 │   ├── app/
 │   │   ├── main.py                    # App entrypoint, CORS & route mounting
 │   │   ├── core/config.py             # Pydantic Settings & safe env loading
-│   │   └── api/routes/health.py       # /health & /status diagnostic endpoints
-│   ├── tests/                         # Pytest unit tests (health, config)
+│   │   ├── api/routes/health.py       # /health & /status diagnostic endpoints
+│   │   └── services/llm/              # LLM Client Adapter & Providers (Milestone 3.12)
+│   │       ├── base.py                # Abstract BaseLLMClient, ChatMessage, LLMResponse
+│   │       ├── mock.py                # MockLLMClient for offline zero-cost testing
+│   │       ├── provider.py            # OpenAILLMClient with error & rate-limit mapping
+│   │       └── factory.py             # Client factory (mock vs real)
+│   ├── scripts/
+│   │   └── smoke_test_llm.py          # Standalone LLM smoke test script (Milestone 3.12)
+│   ├── tests/                         # Pytest unit tests (health, config, llm client)
 │   ├── pyproject.toml                 # Ruff, Pytest, packaging configuration
 │   ├── requirements.txt               # Locked runtime dependencies
 │   ├── requirements-dev.txt           # Development and testing dependencies
@@ -57,6 +64,7 @@ S63_airline-procedure-intelligence/
 │   ├── index.html                     # Self-contained responsive HTML5/CSS3/JS prototype
 │   └── README.md                      # Prototype user guide & scenario walkthrough
 ├── docs/                              # Comprehensive Architectural Documentation
+│   ├── LLM_CLIENT.md                  # LLM Client Adapter & Provider Setup (Milestone 3.12)
 │   ├── UX_DESIGN.md                   # UX Architecture & Wireframes (Milestone 3.9)
 │   ├── PRD.md                         # Product Requirements Document (Milestone 3.8)
 │   ├── ARCHITECTURE.md                # Initial RAG Architecture & Ingestion Design (Milestone 3.37)
@@ -72,17 +80,16 @@ S63_airline-procedure-intelligence/
 
 ---
 
-## 3. Team Workflow & Contribution Standards (Milestone 3.11)
+## 3. Running LLM Client Smoke Tests (Milestone 3.12)
 
-- **Branch Naming:** `feat/day-<NN>-<short-description>`, `fix/...`, `docs/...`, `chore/...`, `safety/...`.
-- **Commit Style:** [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, `test:`, `chore:`, `safety:`).
-- **Automated CI Quality Gates:** Every PR is verified by GitHub Actions:
-  - Backend Ruff linting & formatting (`ruff check . && ruff format --check .`)
-  - Backend unit test validation (`pytest -v`)
-  - Frontend TypeScript validation (`npx tsc --noEmit`)
-  - Credential leak & secret hygiene scanning
-- **Manual PR Approval Requirement:** Merging is strictly a human-controlled action. Auto-merges are disabled to guarantee safety review.
-- Detailed guidelines are in [CONTRIBUTING.md](CONTRIBUTING.md).
+```bash
+# 1. Run offline mock smoke test (zero cost, tests adapter logic)
+python backend/scripts/smoke_test_llm.py --mock
+
+# 2. Run real provider smoke test (requires OPENAI_API_KEY in environment)
+python backend/scripts/smoke_test_llm.py
+```
+*(If credentials are not configured, the script reports `[STATUS] SKIPPED: Live API credentials (OPENAI_API_KEY) are not configured.` honestly without failing).*
 
 ---
 
@@ -143,4 +150,5 @@ npm run dev
 - **Milestone 3.9 (Mock UX & Clickable Prototype):** Wireframe specifications, primary user journey documentation, and interactive prototype covering active procedures, superseded warnings, no-evidence refusals, and conflicting sources.
 - **Milestone 3.10 (Development Environment & Workspace):** Modular Next.js and FastAPI workspace, dependency manifests, safe environment loading, `.env.example`, formatting/linting configs, and health-check instructions.
 - **Milestone 3.11 (GitHub Repository & Team Workflow):** CI quality gates, PR template with human review gate, aviation procedure discrepancy issue template, contribution guidelines, branch naming conventions, and secret hygiene check.
+- **Milestone 3.12 (LLM API Access & First Completion):** Abstract `BaseLLMClient`, `MockLLMClient` with canned and fault-simulation capabilities, `OpenAILLMClient` with timeout/rate-limit/provider error mapping, client factory, standalone smoke test script, and mock-based automated test suite.
 - **Milestone 3.37 (Initial RAG Architecture):** Detailed architecture specifications covering ingestion, parsing, vector index, supersession model, hybrid retrieval, fail-closed generation, and risk mitigation.
