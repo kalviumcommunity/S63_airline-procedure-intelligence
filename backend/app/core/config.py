@@ -22,12 +22,18 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    # LLM Settings (Defaults allow service to boot even without real credentials)
+    # LLM Settings
+    LLM_PROVIDER: str = Field(
+        default="mock", description="LLM provider: 'mock', 'openai', or 'anthropic'"
+    )
     OPENAI_API_KEY: str | None = Field(default=None)
+    OPENAI_BASE_URL: str = "https://api.openai.com/v1"
     ANTHROPIC_API_KEY: str | None = Field(default=None)
-    DEFAULT_LLM_MODEL: str = "claude-3-5-sonnet-20241022"
+    DEFAULT_LLM_MODEL: str = "gpt-4o-mini"
     DEFAULT_EMBEDDING_MODEL: str = "text-embedding-3-large"
     LLM_TEMPERATURE: float = 0.0
+    LLM_REQUEST_TIMEOUT_SECONDS: float = 30.0
+    LLM_MAX_RETRIES: int = 2
 
     # Vector & Relational Storage
     VECTOR_DB_TYPE: str = "qdrant"
