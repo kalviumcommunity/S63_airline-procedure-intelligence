@@ -138,3 +138,4 @@ The SkyOps Intelligence platform follows an aggressive, safety-governed 30-day i
 | **3.75** | **Generation Guardrails & Citation Verifier** | Day 21 | Zero-temperature generator with citation validation and refusal fallback. | Planned |
 | **3.88** | **Ramp Mobile Interface & Offline Cache** | Day 25 | Glove-friendly PWA with cached emergency procedures. | Planned |
 | **3.99** | **Pilot Deployment & Field Evaluation** | Day 30 | Field validation at test hub station and safety sign-off. | Planned |
+
