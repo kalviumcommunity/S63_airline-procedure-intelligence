@@ -41,3 +41,4 @@ Use the top **SkyOps State Simulator** bar or type corresponding keywords in the
 - **Daylight Ramp Mode:** Toggle via the top right `☀️ Daylight Mode` button to switch between High-Contrast Sunlight Mode (contrast ratio $>8.5:1$ for tarmac aprons), Low-Light Night Mode, and Standard Mode.
 - **Ramp Glove Touch Targets:** Primary touch targets are sized at $50\text{--}54\text{ px}$ with clear tap margins.
 - **Contextual Scoping:** Dynamic dropdown selectors for **Station** (`KORD`, `KJFK`, `KLAX`, `KDFW`), **Fleet** (`A321neo`, `A320`, `B737`, `B787`), and **Role** (`Ramp`, `Gate`, `Fueling`, `Baggage`).
+

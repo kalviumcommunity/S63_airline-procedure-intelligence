@@ -281,3 +281,4 @@ The end-to-end journey guides ground staff from an urgent question to verified c
    - `aria-live="polite"` for asynchronous search result loading.
    - `aria-alert="true"` for superseded warning banners.
    - Semantic `<header>`, `<main>`, `<article>`, and `<nav>` elements throughout.
+
