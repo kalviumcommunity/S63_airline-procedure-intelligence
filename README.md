@@ -64,6 +64,7 @@ S63_airline-procedure-intelligence/
 │   ├── index.html                     # Self-contained responsive HTML5/CSS3/JS prototype
 │   └── README.md                      # Prototype user guide & scenario walkthrough
 ├── docs/                              # Comprehensive Architectural Documentation
+│   ├── WORKFLOW_WALKTHROUGH.md        # 5-Topic Team Workflow & Review Walkthrough (Milestone 3.11)
 │   ├── LLM_CLIENT.md                  # LLM Client Adapter & Provider Setup (Milestone 3.12)
 │   ├── UX_DESIGN.md                   # UX Architecture & Wireframes (Milestone 3.9)
 │   ├── PRD.md                         # Product Requirements Document (Milestone 3.8)
