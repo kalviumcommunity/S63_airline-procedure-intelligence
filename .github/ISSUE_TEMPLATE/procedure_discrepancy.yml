@@ -1,0 +1,56 @@
+name: "⚠️ Procedure Discrepancy / Supersession Report"
+description: "Report an obsolete, superseded, ambiguous, or conflicting procedure in SkyOps Intelligence."
+title: "[PROCEDURE DISCREPANCY]: "
+labels: ["safety", "discrepancy", "high-priority"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### Aviation Safety Discrepancy Report
+        Use this form if SkyOps Intelligence provided a procedure that conflicts with an active Safety Bulletin, local airport directive, or current Ground Operations Manual.
+
+  - type: input
+    id: procedure_code
+    attributes:
+      label: Procedure Reference or Document ID
+      description: e.g., GOM Section 6.2.1, OSB-2026-04, FAA AD-2026-02
+      placeholder: "GOM Section 5.3.2"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity_level
+    attributes:
+      label: Operational Safety Severity Level
+      options:
+        - "Level 1: Catastrophic / Immediate Ramp Hazard (Halt Operations)"
+        - "Level 2: Major / Procedural Conflict between Directives"
+        - "Level 3: Minor / Ambiguity in Step Wording or PPE"
+    validations:
+      required: true
+
+  - type: textarea
+    id: discrepancy_description
+    attributes:
+      label: Description of Conflict or Superseded Content
+      description: Explain why the retrieved guidance is obsolete, conflicting, or unsafe.
+    validations:
+      required: true
+
+  - type: input
+    id: governing_document
+    attributes:
+      label: Active Superseding Document (if known)
+      description: e.g., Safety Bulletin OSB-2026-08 issued 2026-02-14
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: immediate_action
+    attributes:
+      label: Immediate Field Action Taken
+      options:
+        - label: "Station Duty Manager or Ramp Lead was notified immediately"
+          required: true
+        - label: "Field operations reverted to hardcopy verified manual"
+          required: false

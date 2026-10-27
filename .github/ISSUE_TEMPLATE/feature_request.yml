@@ -1,0 +1,38 @@
+name: "💡 Feature Request"
+description: "Suggest a feature, workflow optimization, or airport handling integration."
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Suggest an operational or technical enhancement for SkyOps Intelligence.
+
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Operational Problem & Need
+      description: What operational pain point does this address for ground personnel?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution or UX Flow
+      description: Detailed explanation of the requested capability.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: affected_persona
+    attributes:
+      label: Primary Ground Handling Persona
+      options:
+        - "Ramp Agent / Marshaller"
+        - "Gate / Boarding Agent"
+        - "Fueling Operations"
+        - "Station Operations Manager"
+        - "Compliance & Safety Auditor"
+    validations:
+      required: true

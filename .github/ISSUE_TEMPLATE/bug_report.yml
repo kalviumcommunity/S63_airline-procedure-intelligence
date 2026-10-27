@@ -1,0 +1,46 @@
+name: "🐛 Bug Report"
+description: "Report a software defect, API failure, or client malfunction in SkyOps Intelligence."
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for submitting a bug report. Please provide clear reproduction steps.
+
+  - type: input
+    id: component
+    attributes:
+      label: Affected Subsystem
+      placeholder: "backend / frontend / parser / vector-search"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Describe how the defect occurred.
+      placeholder: |
+        1. Open query box
+        2. Query '...'
+        3. Observe error ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected vs Actual Behavior
+      description: What should have happened according to system requirements?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Diagnostic Logs / Error Messages
+      description: Paste relevant terminal logs (ensure NO API keys or credentials are included).
+      render: shell
+    validations:
+      required: false
