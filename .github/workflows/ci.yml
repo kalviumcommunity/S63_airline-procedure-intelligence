@@ -1,0 +1,103 @@
+name: CI Quality Gates
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 1. BACKEND CHECKS: Linting, Formatting, and Unit Tests
+  # ============================================================================
+  backend-checks:
+    name: Backend Linting & Pytest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run Ruff Linter
+        run: |
+          ruff check .
+
+      - name: Check Ruff Code Formatting
+        run: |
+          ruff format --check .
+
+      - name: Run Pytest Test Suite
+        env:
+          ENVIRONMENT: test
+          PYTHONPATH: .
+        run: |
+          pytest -v
+
+  # ============================================================================
+  # 2. FRONTEND CHECKS: TypeScript Validation and Syntax Check
+  # ============================================================================
+  frontend-checks:
+    name: Frontend Lint & Typecheck
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package.json
+
+      - name: Install frontend dependencies
+        run: |
+          npm install
+
+      - name: Type check with TypeScript compiler
+        run: |
+          npx tsc --noEmit
+
+  # ============================================================================
+  # 3. SECURITY & CREDENTIAL HYGIENE CHECK
+  # ============================================================================
+  security-audit:
+    name: Credential Leak & Secret Hygiene Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan for uncommitted secrets or leaked .env files
+        run: |
+          echo "Scanning repository for accidentally tracked .env files..."
+          if git ls-files | grep -E '^(\.env|\.env\.local|backend/\.env|frontend/\.env)$'; then
+            echo "ERROR: Actual .env or credential file tracked by Git!"
+            exit 1
+          fi
+          echo "Secret hygiene scan passed. No live .env or credential files detected in Git tree."
