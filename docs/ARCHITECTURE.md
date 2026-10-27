@@ -318,3 +318,4 @@ sequenceDiagram
 3. **Data Protection & SOC 2 Compliance:**
    - Encrypted data at rest (AES-256) and in transit (TLS 1.3).
    - Zero training clause: Airline procedural proprietary IP is never retained or utilized for public model training.
+

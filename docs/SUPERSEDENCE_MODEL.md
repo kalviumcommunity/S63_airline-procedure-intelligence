@@ -248,3 +248,4 @@ def resolve_applicable_procedures(retrieved_candidates, current_time, station_co
      > **MANDATORY SAFETY OVERRIDE (OSB-2026-03):** DO NOT use standard polyethylene bags. Utilize the Gate Emergency Fire Containment Bag (FCB) located under the jet bridge counter.
    - Cites OSB-2026-03 (Effective Jan 10, 2026) as the sole governing procedure.
    - Result: Catastrophic gate fire hazard averted.
+

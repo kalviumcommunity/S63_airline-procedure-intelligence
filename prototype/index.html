@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkyOps Intelligence - Ground Procedure Assistant Prototype</title>
+  <style>
+    :root {
+      --bg-primary: #f4f6f9;
+      --bg-surface: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border-color: #cbd5e1;
+      --primary: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --danger: #b91c1c;
+      --danger-bg: #fef2f2;
+      --danger-border: #f87171;
+      --warning: #b45309;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --success: #15803d;
+      --success-bg: #f0fdf4;
+      --success-border: #86efac;
+      --badge-bg: #e2e8f0;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* Daylight Ramp High-Contrast Mode */
+    body.daylight-mode {
+      --bg-primary: #f8fafc;
+      --bg-surface: #ffffff;
+      --text-main: #000000;
+      --text-muted: #1e293b;
+      --border-color: #475569;
+      --primary: #0369a1;
+      --primary-light: #bae6fd;
+      --danger: #991b1b;
+      --danger-bg: #fee2e2;
+      --danger-border: #dc2626;
+      --warning: #92400e;
+      --warning-bg: #fef3c7;
+      --warning-border: #d97706;
+      --success: #166534;
+      --success-bg: #dcfce7;
+      --success-border: #15803d;
+    }
+
+    /* Low-Light / Night Shift Mode */
+    body.night-mode {
+      --bg-primary: #0b0f17;
+      --bg-surface: #151d2a;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+      --primary: #38bdf8;
+      --primary-hover: #0284c7;
+      --primary-light: #082f49;
+      --danger: #f87171;
+      --danger-bg: #450a0a;
+      --danger-border: #ef4444;
+      --warning: #fbbf24;
+      --warning-bg: #451a03;
+      --warning-border: #f59e0b;
+      --success: #4ade80;
+      --success-bg: #052e16;
+      --success-border: #22c55e;
+      --badge-bg: #1e293b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding-bottom: 60px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Simulation Control Toolbar (Prototype only) */
+    .sim-bar {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 13px;
+      border-bottom: 2px solid #38bdf8;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .sim-bar .badge {
+      background: #38bdf8;
+      color: #0f172a;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+    }
+    .sim-states {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .sim-btn {
+      background: #334155;
+      color: #f8fafc;
+      border: 1px solid #475569;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.15s;
+    }
+    .sim-btn:hover {
+      background: #475569;
+    }
+    .sim-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #ffffff;
+    }
+
+    /* Main Container */
+    .container {
+      max-width: 900px;
+      margin: 16px auto;
+      padding: 0 16px;
+    }
+
+    /* App Header */
+    header {
+      background: var(--bg-surface);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      padding: 16px 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 20px;
+    }
+    .brand h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .brand p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .context-selectors {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .selector-group select {
+      background: var(--bg-primary);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    /* User Journey Stepper */
+    .journey-stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      gap: 8px;
+      box-shadow: var(--shadow);
+    }
+    .step-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--badge-bg);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .step-item.active .step-number {
+      background: var(--primary);
+      color: white;
+    }
+    .step-title {
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .step-desc {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Search & Scenarios Box */
+    .search-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+    .search-input-wrapper {
+      position: relative;
+      margin-bottom: 12px;
+    }
+    .search-input {
+      width: 100%;
+      min-height: 54px;
+      padding: 12px 50px 12px 18px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-main);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+    .search-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      min-height: 40px;
+      min-width: 44px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+    }
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .chips-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .chip {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      transition: all 0.15s;
+    }
+    .chip:hover {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+
+    /* Result Panels */
+    .result-view {
+      display: none;
+    }
+    .result-view.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+    }
+
+    /* Status Badges */
+    .badge-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .badge-verified {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+    .badge-superseded {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 2px solid var(--danger);
+      animation: pulseAlert 2s infinite;
+    }
+    .badge-override {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid var(--warning-border);
+    }
+    .badge-meta {
+      background: var(--badge-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+    }
+
+    @keyframes pulseAlert {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+      70% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
+    /* Safety Alert Boxes */
+    .alert-box {
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .alert-danger {
+      background: var(--danger-bg);
+      border: 2px solid var(--danger-border);
+      color: var(--danger);
+    }
+    .alert-warning {
+      background: var(--warning-bg);
+      border: 2px solid var(--warning-border);
+      color: var(--warning);
+    }
+    .alert-icon {
+      font-size: 24px;
+      line-height: 1;
+    }
+    .alert-title {
+      font-size: 15px;
+      font-weight: 800;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .alert-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* PPE Pill Container */
+    .ppe-container {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+    }
+    .ppe-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    .ppe-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ppe-pill {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Checklist Steps */
+    .checklist-container h3 {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .step-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .step-idx {
+      background: var(--primary);
+      color: white;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .step-content {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .step-content b, .step-content strong {
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .step-content .mandatory {
+      color: var(--danger);
+      font-weight: 800;
+    }
+
+    /* Citations Drawer */
+    .citations-card {
+      border-top: 2px dashed var(--border-color);
+      padding-top: 16px;
+      margin-top: 16px;
+    }
+    .citations-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+    .citation-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .citation-item {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .citation-link {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    /* Bottom Action Buttons (Ramp-friendly 52dp height) */
+    .action-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn {
+      min-height: 50px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 0 16px;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+    .btn-secondary {
+      background: var(--bg-surface);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+    }
+
+    /* Ingestion Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+    .modal-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+    }
+    .modal-header h2 {
+      font-size: 18px;
+      font-weight: 800;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-size: 14px;
+    }
+    .dropzone {
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      background: var(--primary-light);
+      cursor: pointer;
+      margin-bottom: 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .journey-stepper {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .action-bar {
+        grid-template-columns: 1fr;
+      }
+      .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIMULATION TOOLBAR (For Milestone Review) -->
+  <div class="sim-bar">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="badge">Milestone 3.9</span>
+      <strong>SkyOps State Simulator:</strong>
+    </div>
+    <div class="sim-states">
+      <button class="sim-btn active" onclick="switchState('active')">1. Active Procedure</button>
+      <button class="sim-btn" onclick="switchState('superseded')">2. Superseded Warning</button>
+      <button class="sim-btn" onclick="switchState('refusal')">3. No-Evidence Refusal</button>
+      <button class="sim-btn" onclick="switchState('conflict')">4. Conflicting Sources</button>
+      <button class="sim-btn" onclick="openUploadModal()">5. Upload Document</button>
+      <button class="sim-btn" onclick="toggleLightingMode()" id="lightingBtn">☀️ Daylight Mode</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- APP HEADER -->
+    <header>
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">✈</div>
+          <div>
+            <h1>SkyOps Intelligence</h1>
+            <p>Airline Procedure & Safety Directive Assistant</p>
+          </div>
+        </div>
+        <div class="context-selectors">
+          <div class="selector-group">
+            <select id="stationSelect" onchange="updateContextBadge()" aria-label="Select Station">
+              <option value="ORD">Station: KORD (Chicago O'Hare)</option>
+              <option value="JFK">Station: KJFK (New York JFK)</option>
+              <option value="LAX">Station: KLAX (Los Angeles)</option>
+              <option value="DFW">Station: KDFW (Dallas/Ft. Worth)</option>
+            </select>
+          </div>
+          <div class="selector-group">
+            <select id="fleetSelect" onchange="updateContextBadge()" aria-label="Select Aircraft Fleet">
+              <option value="A321neo">Fleet: Airbus A321neo</option>
+              <option value="A320-200">Fleet: Airbus A320-200</option>
+              <option value="B737-800">Fleet: Boeing 737-800</option>
+              <option value="B787-9">Fleet: Boeing 787-9</option>
+            </select>
+          </div>
+          <div class="selector-group">
+            <select id="roleSelect" onchange="updateContextBadge()" aria-label="Select Role">
+              <option value="Ramp">Role: Ramp Marshaller / Lead</option>
+              <option value="Gate">Role: Gate / Customer Service</option>
+              <option value="Fueling">Role: Fueling Specialist</option>
+              <option value="Baggage">Role: Baggage & Cargo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- PRIMARY USER JOURNEY STEPPER -->
+    <div class="journey-stepper" aria-label="Procedure Verification Journey">
+      <div class="step-item active" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-title">Ask Question</div>
+        <div class="step-desc">Natural query</div>
+      </div>
+      <div class="step-item active" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-title">Retrieve Chunks</div>
+        <div class="step-desc">Hybrid BM25+Dense</div>
+      </div>
+      <div class="step-item active" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-title">Verify Status</div>
+        <div class="step-desc">Supersession DAG</div>
+      </div>
+      <div class="step-item active" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-title">Review Cited Answer</div>
+        <div class="step-desc">Authoritative SOP</div>
+      </div>
+    </div>
+
+    <!-- SEARCH & CHIP SECTION -->
+    <div class="search-card">
+      <div class="search-input-wrapper">
+        <input 
+          type="text" 
+          id="queryInput" 
+          class="search-input" 
+          placeholder="Ask a ground operational procedure question..." 
+          value="Can we fuel while passengers are embarking on an A321neo at ORD?"
+          aria-label="Search operational procedures"
+        >
+        <button class="search-btn" onclick="executeSearch()" aria-label="Execute search">
+          <span>Search</span>
+        </button>
+      </div>
+
+      <div class="quick-chips">
+        <span class="chips-label">Scenario Presets:</span>
+        <button class="chip" onclick="simulatePreset('active')">⛽ Fueling with Pax On Board</button>
+        <button class="chip" onclick="simulatePreset('superseded')">🔋 Damaged Lithium Battery at Gate</button>
+        <button class="chip" onclick="simulatePreset('refusal')">🚜 Non-Standard Towing (Flat Tire)</button>
+        <button class="chip" onclick="simulatePreset('conflict')">❄️ De-icing Tactile vs Visual Check</button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- STATE 1: STANDARD VERIFIED ACTIVE PROCEDURE              -->
+    <!-- ======================================================== -->
+    <div id="view-active" class="result-view active">
+      <div class="card">
+        
+        <!-- Metadata Badges -->
+        <div class="badge-bar">
+          <span class="status-badge badge-verified">✓ Verified Active</span>
+          <span class="status-badge badge-override">⚡ Overridden by Bulletin OSB-2026-04</span>
+          <span class="status-badge badge-meta" id="activeStationBadge">Station: KORD</span>
+          <span class="status-badge badge-meta" id="activeFleetBadge">Fleet: A321neo</span>
+          <span class="status-badge badge-meta">Effective: 2026-02-01</span>
+        </div>
+
+        <h2 style="font-size: 19px; font-weight: 800; margin-bottom: 12px;">
+          Ground Fuel Servicing with Passengers Embarking / Disembarking
+        </h2>
+
+        <!-- Safety Warning Box -->
+        <div class="alert-box alert-warning">
+          <div class="alert-icon">⚠️</div>
+          <div>
+            <div class="alert-title">Mandatory Safety Warning (OSB-2026-04 Override)</div>
+            <div class="alert-text">
+              Ground fueling during active passenger embarkation is permitted <strong>ONLY</strong> when designated aircraft exits remain completely unobstructed with passenger boarding bridges or ground stairs positioned at minimum two door exits.
+            </div>
+          </div>
+        </div>
+
+        <!-- Required PPE -->
+        <div class="ppe-container">
+          <div class="ppe-label">Mandatory Personal Protective Equipment (PPE):</div>
+          <div class="ppe-pills">
+            <span class="ppe-pill">🦺 High-Visibility Reflective Vest</span>
+            <span class="ppe-pill">🥾 ANSI Steel-Toe Ramp Boots</span>
+            <span class="ppe-pill">🎧 Noise-Attenuating Ear Defenders</span>
+            <span class="ppe-pill">🧤 Nitrile Fuel-Resistant Gloves</span>
+          </div>
+        </div>
+
+        <!-- Procedural Checklist Steps -->
+        <div class="checklist-container">
+          <h3>Procedural Action Checklist:</h3>
+          <div class="step-list">
+            <div class="step-card">
+              <div class="step-idx">1</div>
+              <div class="step-content">
+                The Fueling Supervisor <span class="mandatory">MUST</span> establish direct positive two-way communication with the Flight Deck crew and Senior Cabin Crew Member before connecting the hydrant pit coupler.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-idx">2</div>
+              <div class="step-content">
+                Main Cabin Door L1 <span class="mandatory">MUST</span> remain actively mated to the Jet Bridge or ground mobile stairs with exterior egress corridors completely clear of baggage carts and GSE.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-idx">3</div>
+              <div class="step-content">
+                An additional exit (Door L2 or R2) <span class="mandatory">MUST</span> have ground stairs deployed or an unimpeded evacuation slide clearance zone maintained free of fuel tankers or service trucks.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-idx">4</div>
+              <div class="step-content">
+                Ground crew <span class="mandatory">SHALL NOT</span> connect or disconnect Ground Power Units (GPU) or 400Hz umbilical cables while fueling nozzles are actively locked into fuel adapters.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-idx">5</div>
+              <div class="step-content">
+                If fuel vapor is detected inside the cabin or an apron spill occurs, fueling <span class="mandatory">MUST BE IMMEDIATELY SUSPENDED</span> via the Emergency Fuel Shut-off (EFSO) switch.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Citations Section -->
+        <div class="citations-card">
+          <div class="citations-header">
+            <span>Authoritative Source Citations (3 Grounded References):</span>
+            <span>▼</span>
+          </div>
+          <div class="citation-list">
+            <div class="citation-item">
+              <div>
+                <strong>[1] OSB-2026-04</strong> — Operations Safety Bulletin: Fueling with Passengers (p. 2, Sec 3.1)
+                <div style="font-size: 11px; color: var(--text-muted);">Published: 2026-01-20 | Precedence: Level 2 Safety Bulletin</div>
+              </div>
+              <span class="citation-link">[View Verified PDF]</span>
+            </div>
+            <div class="citation-item">
+              <div>
+                <strong>[2] GOM Chapter 6</strong> — Ground Operations Manual: Fuel Servicing Standards (p. 184, Sec 6.2.1)
+                <div style="font-size: 11px; color: var(--text-muted);">Version: 2026.1 | Precedence: Level 4 Base SOP</div>
+              </div>
+              <span class="citation-link">[View Verified PDF]</span>
+            </div>
+            <div class="citation-item">
+              <div>
+                <strong>[3] FAA AC 150/5230-4B</strong> — Aircraft Fuel Storage and Handling on Airports (Sec 4.8)
+                <div style="font-size: 11px; color: var(--text-muted);">Federal Aviation Administration Advisory Circular</div>
+              </div>
+              <span class="citation-link">[View Verified PDF]</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Bar -->
+        <div class="action-bar">
+          <button class="btn btn-primary" onclick="alert('Checklist completed and logged to audit store #8921.')">
+            ✓ Mark Checklist Completed
+          </button>
+          <button class="btn btn-secondary" onclick="alert('Feedback ticket opened for Station Operations Quality Lead.')">
+            💬 Flag Discrepancy / Ambiguity
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- STATE 2: SUPERSEDED-DOCUMENT WARNING STATE               -->
+    <!-- ======================================================== -->
+    <div id="view-superseded" class="result-view">
+      <div class="card">
+        
+        <!-- Critical Superseded Banner -->
+        <div class="alert-box alert-danger" style="border-width: 3px;">
+          <div class="alert-icon">🛑</div>
+          <div>
+            <div class="alert-title" style="font-size: 17px;">CRITICAL SAFETY WARNING: SUPERSEDED PROCEDURE</div>
+            <div class="alert-text">
+              <strong>DO NOT EXECUTE THIS PROCEDURE ON THE ACTIVE RAMP.</strong><br>
+              The manual section you searched (<strong>GOM 2024.2, Section 8.4</strong>) was permanently <strong>SUPERSEDED on 2026-01-10</strong> by Safety Bulletin <strong>OSB-2026-03</strong> due to non-compliance with FAA SAFO 25002 Lithium Fire Containment regulations.
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--warning-bg); border: 2px solid var(--warning); border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center;">
+          <h3 style="font-size: 16px; font-weight: 800; color: var(--warning); margin-bottom: 8px;">
+            ACTIVE GOVERNING PROCEDURE AVAILABLE
+          </h3>
+          <p style="font-size: 13px; margin-bottom: 12px;">
+            Operations Safety Bulletin <strong>OSB-2026-03</strong> defines the current mandatory protocol using Fire Containment Bags (FCB).
+          </p>
+          <button class="btn btn-primary" style="background: var(--warning); border-color: var(--warning); margin: 0 auto;" onclick="switchState('active')">
+            ➔ Load Active Replacement Procedure (OSB-2026-03)
+          </button>
+        </div>
+
+        <div style="opacity: 0.65; border: 1px dashed var(--border-color); border-radius: 8px; padding: 16px;">
+          <h4 style="font-size: 13px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">
+            Archived Obsolete Text (For Audit & Incident Investigation Only):
+          </h4>
+          <p style="font-size: 13px; font-family: monospace; line-height: 1.6; color: var(--text-muted);">
+            "...8.4.2: Any consumer electronic device exhibiting smoke or heat in the boarding area shall be placed in a heavy-duty sealable polyethylene bag, stored in a metal bin, and moved to station lost-and-found..."
+          </p>
+          <div style="margin-top: 10px; font-size: 12px; color: var(--danger); font-weight: 700;">
+            ⚠️ HAZARD REPORTED: Polyethylene bags melt under lithium thermal runaway, causing toxic gas emission and secondary gate fires.
+          </div>
+        </div>
+
+        <div class="citations-card">
+          <div class="citations-header">
+            <span>Supersession Audit Trail:</span>
+          </div>
+          <div class="citation-list">
+            <div class="citation-item">
+              <div>
+                <strong>Archived: GOM 2024.2 Sec 8.4</strong> — Status: <span style="color:var(--danger); font-weight:bold;">SUPERSEDED</span>
+                <div style="font-size: 11px; color: var(--text-muted);">Invalidated: 2026-01-10 00:00 UTC | Revocation Order #SO-982</div>
+              </div>
+            </div>
+            <div class="citation-item">
+              <div>
+                <strong>Active: OSB-2026-03</strong> — Status: <span style="color:var(--success); font-weight:bold;">ACTIVE</span>
+                <div style="font-size: 11px; color: var(--text-muted);">Effective: 2026-01-10 00:00 UTC | Precedence: Level 2</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- STATE 3: NO-EVIDENCE REFUSAL (FAIL-CLOSED)               -->
+    <!-- ======================================================== -->
+    <div id="view-refusal" class="result-view">
+      <div class="card">
+        
+        <div class="alert-box alert-danger">
+          <div class="alert-icon">🚫</div>
+          <div>
+            <div class="alert-title">NO VERIFIED ACTIVE PROCEDURE FOUND (FAIL-CLOSED)</div>
+            <div class="alert-text">
+              Query: <em>"Can we use a towbarless tug on nose gear with flat tire?"</em>
+            </div>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 8px;">Aviation Safety Compliance Protocol</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+            The semantic retrieval engine searched current Ground Operations Manuals, Manufacturer Bulletins, and Station Directives for Fleet: <strong>A321neo</strong> at Station: <strong>KORD</strong>, but found no verified procedure authorizing the movement of an aircraft with a deflated tire using standard ground tugs.
+          </p>
+          <div style="background: var(--danger-bg); border-left: 4px solid var(--danger); padding: 12px; font-size: 13px; font-weight: 700; color: var(--danger);">
+            MANDATORY RULE: Ground personnel SHALL NOT improvise, extrapolate, or execute non-standard towing procedures. Doing so causes nose gear torque strut structural failure.
+          </div>
+        </div>
+
+        <h3 style="font-size: 15px; font-weight: 800; margin-bottom: 12px;">Immediate Escalation Contacts:</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+          <button class="btn btn-secondary" style="border-color: var(--primary); color: var(--primary);" onclick="alert('Dialing Station Maintenance Operations Control (MOC) at Ext. 4410...')">
+            📞 Call Maintenance Control (Ext. 4410)
+          </button>
+          <button class="btn btn-secondary" style="border-color: var(--primary); color: var(--primary);" onclick="alert('Paging Ramp Duty Manager on radio frequency 131.85 MHz...')">
+            📻 Page Ramp Duty Lead (SOC)
+          </button>
+        </div>
+
+        <div class="citations-card">
+          <div class="citations-header">
+            <span>Related Verified Procedures (Indexed & Active):</span>
+          </div>
+          <div class="citation-list">
+            <div class="citation-item">
+              <div>
+                <strong>GOM Section 5.2.4</strong> — Standard Aircraft Towing Protocols (Normal Gear & Tires)
+              </div>
+              <span class="citation-link" onclick="switchState('active')">[View SOP]</span>
+            </div>
+            <div class="citation-item">
+              <div>
+                <strong>GOM Section 9.1.2</strong> — Aircraft Tire Pressure Inspection & Rapid Reporting
+              </div>
+              <span class="citation-link" onclick="switchState('active')">[View SOP]</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ======================================================== -->
+    <!-- STATE 4: CONFLICTING-SOURCE STATE                        -->
+    <!-- ======================================================== -->
+    <div id="view-conflict" class="result-view">
+      <div class="card">
+        
+        <div class="badge-bar">
+          <span class="status-badge badge-override">⚖ Precedence Conflict Resolved</span>
+          <span class="status-badge badge-verified">Precedence: Level 1 Regulatory Directive</span>
+          <span class="status-badge badge-meta">Topic: De-icing Tactile Check</span>
+        </div>
+
+        <h2 style="font-size: 19px; font-weight: 800; margin-bottom: 12px;">
+          Pre-Takeoff De-icing Wing Surface Tactile Inspection Mandate
+        </h2>
+
+        <div class="alert-box alert-warning">
+          <div class="alert-icon">⚖</div>
+          <div>
+            <div class="alert-title">Conflicting Directives Evaluated</div>
+            <div class="alert-text">
+              A direct conflict was detected between base <strong>GOM Section 7.3.1</strong> (allowing visual check from cabin) and <strong>FAA Emergency Airworthiness Directive AD-2026-02-04</strong>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Precedence Comparison Grid -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+          
+          <!-- Overridden Item -->
+          <div style="background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 8px; padding: 14px; opacity: 0.7;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--danger); text-transform: uppercase;">
+              SUPERSEDED BY DIRECTIVE (LEVEL 4 BASE GOM)
+            </div>
+            <div style="font-weight: 800; font-size: 14px; margin: 6px 0;">GOM 7.3.1 (Visual Inspection)</div>
+            <p style="font-size: 12px; color: var(--text-muted);">
+              "Under light frost or trace freezing drizzle, visual inspection of the wing upper surface from the passenger cabin window is permissible..."
+            </p>
+            <div style="margin-top: 8px; font-size: 11px; font-weight: 800; color: var(--danger);">
+              STATUS: VOID UNDER CURRENT WEATHER AD
+            </div>
+          </div>
+
+          <!-- Applied Governing Item -->
+          <div style="background: var(--success-bg); border: 2px solid var(--success-border); border-radius: 8px; padding: 14px;">
+            <div style="font-size: 11px; font-weight: 800; color: var(--success); text-transform: uppercase;">
+              GOVERNING LAW (LEVEL 1 REGULATORY DIRECTIVE)
+            </div>
+            <div style="font-weight: 800; font-size: 14px; margin: 6px 0;">FAA AD-2026-02-04 (Mandatory Tactile)</div>
+            <p style="font-size: 12px; color: var(--text-main);">
+              "A physical bare-hand or gloved tactile inspection of the wing leading edge and composite upper wing surface is MANDATORY within 5 minutes of pushback..."
+            </p>
+            <div style="margin-top: 8px; font-size: 11px; font-weight: 800; color: var(--success);">
+              STATUS: ACTIVE & ENFORCED ACROSS ALL STATIONS
+            </div>
+          </div>
+
+        </div>
+
+        <div class="checklist-container">
+          <h3>Governing Operational Checklist (FAA AD Mandate):</h3>
+          <div class="step-list">
+            <div class="step-card">
+              <div class="step-idx">1</div>
+              <div class="step-content">
+                Certified De-icing Deicer <span class="mandatory">MUST</span> mount the de-icing bucket ladder and physically touch the critical wing surfaces.
+              </div>
+            </div>
+            <div class="step-card">
+              <div class="step-idx">2</div>
+              <div class="step-content">
+                Cabin visual inspection is <span class="mandatory">STRICTLY PROHIBITED</span> as a sole means of clean-aircraft determination.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- End container -->
+
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DOCUMENT UPLOAD & INGESTION FLOW (STATE 5)        -->
+  <!-- ======================================================== -->
+  <div id="uploadModal" class="modal-backdrop" aria-hidden="true" role="dialog">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>Document Ingestion & Supersession Management Portal</h2>
+        <button class="close-btn" onclick="closeUploadModal()" aria-label="Close modal">&times;</button>
+      </div>
+
+      <div class="dropzone" onclick="simulateFileUpload()">
+        <div style="font-size: 32px; margin-bottom: 8px;">📄</div>
+        <strong id="dropzoneText">Click to Select or Drop Safety Bulletin PDF</strong>
+        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Supported: PDF, XML (ATA iSpec 2200), SGML (Max 50MB)</p>
+      </div>
+
+      <div class="form-group">
+        <label for="docTypeSelect">Document Classification & Authority Level:</label>
+        <select id="docTypeSelect">
+          <option value="OSB">Level 2: Operations Safety Bulletin (OSB)</option>
+          <option value="AD">Level 1: Regulatory Airworthiness Directive (FAA/EASA)</option>
+          <option value="LOP">Level 3: Local Station Operating Procedure (LOP)</option>
+          <option value="GOM">Level 4: Base Ground Operations Manual Revision</option>
+        </select>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div class="form-group">
+          <label for="docIdInput">Document Identifier:</label>
+          <input type="text" id="docIdInput" value="OSB-2026-09">
+        </div>
+        <div class="form-group">
+          <label for="effDateInput">Effective Date (UTC):</label>
+          <input type="date" id="effDateInput" value="2026-03-01">
+        </div>
+      </div>
+
+      <div class="form-group" style="background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px;">
+        <label style="color: var(--primary);">Supersession & Override Targeting:</label>
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Select which existing document section this bulletin modifies or replaces:</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+          <select aria-label="Target Document">
+            <option>Target Doc: GOM 2026.1</option>
+            <option>Target Doc: GOM 2025.2</option>
+          </select>
+          <select aria-label="Target Section">
+            <option>Section 5.8: APU Hazard Clearance</option>
+            <option>Section 6.2: Fuel Servicing</option>
+            <option>Section 8.4: Lithium Battery DGR</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 16px; font-size: 13px; font-weight: 700; margin-top: 8px;">
+          <label><input type="radio" name="rel" checked> REPLACES (Full Invalidation)</label>
+          <label><input type="radio" name="rel"> AMENDS (Partial Step Update)</label>
+          <label><input type="radio" name="rel"> SUSPENDS</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sigInput">Digital Cryptographic Signature (Safety Officer Private Key):</label>
+        <input type="text" id="sigInput" readonly value="[PKI Verified] Marcus B. - Airline Safety Quality Director (ID: #94812)">
+      </div>
+
+      <div class="action-bar">
+        <button class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitIngestion()">
+          ✓ Sign & Publish to Vector DB
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <script>
+    // State management
+    let currentState = 'active';
+
+    function switchState(stateName) {
+      currentState = stateName;
+      
+      // Update Simulator buttons
+      document.querySelectorAll('.sim-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText.toLowerCase().includes(stateName)) {
+          btn.classList.add('active');
+        }
+      });
+
+      // Update views
+      document.querySelectorAll('.result-view').forEach(view => {
+        view.classList.remove('active');
+      });
+
+      const targetView = document.getElementById('view-' + stateName);
+      if (targetView) {
+        targetView.classList.add('active');
+      }
+
+      // Update search input text to match scenario
+      const qInput = document.getElementById('queryInput');
+      if (stateName === 'active') {
+        qInput.value = "Can we fuel while passengers are embarking on an A321neo at ORD?";
+      } else if (stateName === 'superseded') {
+        qInput.value = "What is the procedure for a smoking laptop battery at the gate under GOM 8.4?";
+      } else if (stateName === 'refusal') {
+        qInput.value = "Can we use a towbarless tug on nose gear with flat tire?";
+      } else if (stateName === 'conflict') {
+        qInput.value = "Wing de-icing pre-takeoff inspection: visual vs tactile check at KORD?";
+      }
+    }
+
+    function simulatePreset(stateName) {
+      switchState(stateName);
+    }
+
+    function executeSearch() {
+      const q = document.getElementById('queryInput').value.toLowerCase();
+      if (q.includes('battery') || q.includes('lithium') || q.includes('8.4')) {
+        switchState('superseded');
+      } else if (q.includes('flat') || q.includes('tire') || q.includes('towbarless')) {
+        switchState('refusal');
+      } else if (q.includes('de-icing') || q.includes('tactile') || q.includes('visual')) {
+        switchState('conflict');
+      } else {
+        switchState('active');
+      }
+    }
+
+    function updateContextBadge() {
+      const st = document.getElementById('stationSelect').value;
+      const fl = document.getElementById('fleetSelect').value;
+      const activeStBadge = document.getElementById('activeStationBadge');
+      const activeFlBadge = document.getElementById('activeFleetBadge');
+      if (activeStBadge) activeStBadge.innerText = 'Station: K' + st;
+      if (activeFlBadge) activeFlBadge.innerText = 'Fleet: ' + fl;
+    }
+
+    function toggleLightingMode() {
+      const body = document.body;
+      const btn = document.getElementById('lightingBtn');
+      if (body.classList.contains('daylight-mode')) {
+        body.classList.remove('daylight-mode');
+        body.classList.add('night-mode');
+        btn.innerText = "🌙 Night Mode";
+      } else if (body.classList.contains('night-mode')) {
+        body.classList.remove('night-mode');
+        btn.innerText = "🌤 Standard Mode";
+      } else {
+        body.classList.add('daylight-mode');
+        btn.innerText = "☀️ Daylight Ramp";
+      }
+    }
+
+    // Modal controls
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.add('open');
+      document.getElementById('uploadModal').setAttribute('aria-hidden', 'false');
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('open');
+      document.getElementById('uploadModal').setAttribute('aria-hidden', 'true');
+    }
+
+    function simulateFileUpload() {
+      document.getElementById('dropzoneText').innerText = "✓ Uploaded: OSB-2026-09_APU_Blast_Zone.pdf (2.4 MB)";
+    }
+
+    function submitIngestion() {
+      alert("Document OSB-2026-09 signed and ingested into SkyOps Vector DB. Target GOM Section 5.8 marked as SUPERSEDED. Graph audit log entry #9842 created.");
+      closeUploadModal();
+      switchState('active');
+    }
+  </script>
+</body>
+</html>

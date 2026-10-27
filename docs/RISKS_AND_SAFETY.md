@@ -111,3 +111,4 @@ SkyOps Intelligence is designed to comply with global aviation regulatory framew
 - **FAA Part 121.137:** Distribution and availability of ground operations manuals to operational personnel.
 
 All query transactions, model reasoning logs, and returned procedure versions are written to a write-once, read-many (WORM) audit store retained for a minimum of seven (7) years to support any formal incident investigation by the NTSB, FAA, or airline flight safety board.
+

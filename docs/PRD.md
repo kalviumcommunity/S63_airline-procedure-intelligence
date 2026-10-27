@@ -172,3 +172,4 @@ To ensure razor-sharp focus on safety-critical procedural intelligence, the foll
 - [x] Non-functional requirements established for performance, availability, security, and daylight usability.
 - [x] Explicit safety constraints and fail-closed anti-hallucination protocols defined.
 - [x] Strict scope boundary separating core procedure retrieval from future maintenance/flight deck capabilities.
+
